@@ -1,0 +1,16 @@
+name: aoc
+on:
+  push:
+
+jobs:
+  aoc:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build
+        run: sh ./gradlew build
+      - name: Advent of Code 🎄
+        run: kotlin -classpath build/libs/aoc2022-kt.jar $(basename $(ls src/Day*kt | tail -n 1 ) .kt)Kt
