@@ -42,10 +42,23 @@ fun main() {
 		return puzzle.stacks.mapNotNull { it.lastOrNull() }.joinToString("")
 	}
 
+	fun part2(input: List<String>): String {
+		val puzzle = parse(input)
+		puzzle.instructions.forEach {
+			val cut = puzzle.stacks[it.src].size - it.count
+			(0 until it.count).forEach { _ ->
+				puzzle.stacks[it.dest].add(puzzle.stacks[it.src].removeAt(cut))
+			}
+		}
+		return puzzle.stacks.mapNotNull { it.lastOrNull() }.joinToString("")
+	}
+
 	// test if implementation meets criteria from the description, like:
 	val testInput = readInput("Day05_test")
 	check(part1(testInput) == "CMZ")
+	check(part2(testInput) == "MCD")
 
 	val input = readInput("Day05")
 	println(part1(input))
+	println(part2(input))
 }
