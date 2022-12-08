@@ -1,5 +1,3 @@
-import kotlin.streams.asSequence
-
 open class ColumnView<E>(open val rows: List<List<E>>, val columnIndex: Int): AbstractMutableList<E>() {
 	override fun add(index: Int, element: E) { TODO("Not yet implemented") }
 
@@ -35,14 +33,14 @@ fun <E> List<E>.takeUntilFound(filter: (element: E) -> Boolean): List<E> {
 fun main() {
 	fun parse(input: List<String>): List<List<Short>> {
 		return input.map {line ->
-			line.chars().asSequence().map {
-				it.toShort()
+			line.asSequence().map {
+				it.digitToInt().toShort()
 			}.toList()
 		}
 	}
 
 	fun checkVisibility(treeRow: Iterable<Short>, visibility: MutableList<Short>) {
-		var maxHeight: Short = 0
+		var maxHeight: Short = -1
 		treeRow.forEachIndexed { i, height ->
 			if (height > maxHeight) {
 				visibility[i] = 1
