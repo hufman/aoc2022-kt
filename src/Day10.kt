@@ -1,3 +1,4 @@
+import kotlin.math.absoluteValue
 
 sealed class CPUOpcode(val cycles: Int) {
     companion object {
@@ -37,11 +38,10 @@ fun main() {
         var state = CPUState()
         commands.forEach { command ->
 //            println(command)
-            (1 until command.cycles).forEach { _ ->
+            (0 until command.cycles).forEach { _ ->
                 yield(state)
             }
             state = command.run(state)
-            yield(state)
         }
     }
 
@@ -50,16 +50,34 @@ fun main() {
 //            .filterIndexed { pc, cpuState ->
 //                println("${pc+1} -> $cpuState"); true
 //            }
-            .filterIndexed { pc, cpuState -> (pc + 2 >= 20) && (pc + 2 - 20) % 40 == 0 }
+            .filterIndexed { pc, cpuState -> (pc + 1 >= 20) && (pc + 1 - 20) % 40 == 0 }
             .mapIndexed { pc_40, cpuState -> (pc_40 * 40 + 20) * cpuState.X }
 //            .filter { println(it); true}
             .take(6)
             .sum()
     }
 
+    fun part2(input: List<String>): List<String> {
+        val output = Array(6) {
+            CharArray(40) {'.'}
+        }
+        execute(parse(input)).forEachIndexed { pc, cpuState ->
+            val y = pc / 40
+            val x = pc % 40
+            if ((x - cpuState.X).absoluteValue < 2) {
+                output[y][x] = '#'
+            }
+        }
+        return output.map {
+            it.joinToString("")
+        }
+    }
+
     val testInput = readInput("Day10_test")
     check(part1(testInput) == 13140)
+    println(part2(testInput).joinToString("\n"))
 
     val input = readInput("Day10")
     println(part1(input))
+    println(part2(input).joinToString("\n"))
 }
