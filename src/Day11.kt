@@ -32,7 +32,7 @@ fun main() {
         input.forEach { line ->
             listMatcher.find(line)?.also {
                 monkey.items = it.groupValues[1].split(", ").map { it.toLong() }.toMutableList()
-                println("Starting items ${monkey.items}")
+//                println("Starting items ${monkey.items}")
             }
             operation.find(line)?.also {
                 val (_, op, right) = it.destructured
@@ -74,7 +74,7 @@ fun main() {
                 monkey.state = MonkeyBrains.State(monkey.state.inspections + monkey.state.items.size, ArrayList())
             }
             yield(monkeys.mapIndexed { i, monkey ->
-                println("$i: ${monkey.state}")
+//                println("$i: ${monkey.state}")
                 monkey.state
             })
         }
@@ -87,10 +87,42 @@ fun main() {
             .fold(1) {acc, next -> acc * next.inspections}  // multiply together
     }
 
+    fun runBusiness2(monkeys: List<MonkeyBrains>): Sequence<List<MonkeyBrains.State>> = sequence {
+        while (true) {
+            val maxModulus = monkeys.fold(1) { acc, monkey ->
+                acc * monkey.modulus
+            }
+            monkeys.forEach { monkey ->
+                monkey.state.items.forEach { current ->
+                    val next = monkey.operation(current) % maxModulus
+//                    println("Converted $current to $next")
+                    if (next % monkey.modulus == 0L) {
+                        monkeys[monkey.trueDest].state.items.add(next)
+                    } else {
+                        monkeys[monkey.falseDest].state.items.add(next)
+                    }
+                }
+                monkey.state = MonkeyBrains.State(monkey.state.inspections + monkey.state.items.size, ArrayList())
+            }
+            yield(monkeys.mapIndexed { i, monkey ->
+//                println("$i: ${monkey.state}")
+                monkey.state
+            })
+        }
+    }
+
+    fun part2(input: List<String>): Long {
+        return runBusiness2(parse(input))
+            .take(10000).last()    // 20 rounds
+            .sortedByDescending { monkey -> monkey.inspections }.take(2)    // top monkeys
+            .fold(1) {acc, next -> acc * next.inspections}  // multiply together
+    }
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day11_test")
-//    check(part1(testInput) == 10605)
+    check(part1(testInput) == 10605)
+    check(part2(testInput) == 2713310158)
 
     val input = readInput("Day11")
     println(part1(input))
+    println(part2(input))
 }
