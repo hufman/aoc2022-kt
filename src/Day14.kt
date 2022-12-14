@@ -48,12 +48,15 @@ fun main() {
 		}
 	}
 
-	fun sprinkle(grid: Array<BooleanArray>, startX: Int = 500, startY: Int = 0): Pair<Int, Int>? {
+	fun sprinkle(grid: Array<BooleanArray>, startX: Int = 500, startY: Int = 0, lastY: Int? = null): Pair<Int, Int>? {
 		var x = startX
 		var y = startY
 		while (true) {
 			if (y+1 == grid.size) {
 				return null
+			}
+			if (y == lastY) {
+				return Pair(x, y)
 			}
 //			println("Checking ${x}x$y: ${grid[y][x]}")
 			if (!grid[y+1][x]) {
@@ -88,10 +91,37 @@ fun main() {
 		}
 	}
 
+	fun part2(input: List<String>): Int {
+		val grid = parse(input)
+		var sand = 0
+		val maxY = grid.indexOfLast { row -> row.any{it} } + 2
+		val startX = grid.filter { row -> row.any{it}}.minOf { row -> row.indexOfFirst { it } } - 0
+		val endX = grid.filter { row -> row.any{it}}.maxOf { row -> row.indexOfLast { it } } + 0
+		(startX .. endX).forEach { x ->
+			grid[maxY][x] = true
+		}
+		printGrid(grid)
+		while (true) {
+			val sandLocation = sprinkle(grid, lastY=maxY-1)
+			if (sandLocation == null) {
+				printGrid(grid)
+				throw AssertionError("Unexpected pouring")
+			}
+			grid[sandLocation.second][sandLocation.first] = true
+			sand += 1
+			if (sandLocation.first == 500 && sandLocation.second == 0) {
+				println("Done adding $sand grains")
+				printGrid(grid)
+				return sand
+			}
+		}
+	}
 	// test if implementation meets criteria from the description, like:
 	val testInput = readInput("Day14_test")
 	check(part1(testInput) == 24)
+	check(part2(testInput) == 93)
 
 	val input = readInput("Day14")
 	println(part1(input))
+	println(part2(input))
 }
